@@ -1,0 +1,25 @@
+services:
+  seed-vc:
+    build: .
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${SEEDVC_PORT:-7860}:7860"
+    volumes:
+      - ./hub-data:/data
+    environment:
+      SEEDVC_DATA: /data
+      SEEDVC_PRELOAD: ${SEEDVC_PRELOAD:-}
+      HF_ENDPOINT: ${HF_ENDPOINT:-https://huggingface.co}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:7860/healthz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s

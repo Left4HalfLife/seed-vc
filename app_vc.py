@@ -1,6 +1,5 @@
 import os
-os.environ['HF_HUB_CACHE'] = './checkpoints/hf_cache'
-import gradio as gr
+os.environ.setdefault('HF_HUB_CACHE', './checkpoints/hf_cache')
 import torch
 import torchaudio
 import librosa
@@ -343,42 +342,20 @@ def voice_conversion(source, target, diffusion_steps, length_adjust, inference_c
             yield mp3_bytes, None
 
 
-def main(args):
+def initialize(args):
     global model, semantic_fn, vocoder_fn, campplus_model, to_mel, mel_fn_args
     global overlap_wave_len, max_context_window, sr, hop_length
     model, semantic_fn, vocoder_fn, campplus_model, to_mel, mel_fn_args = load_models(args)
     # streaming and chunk processing related params
     max_context_window = sr // hop_length * 30
     overlap_wave_len = overlap_frame_len * hop_length
-    description = ("Zero-shot voice conversion with in-context learning. For local deployment please check [GitHub repository](https://github.com/Plachtaa/seed-vc) "
-                   "for details and updates.<br>Note that any reference audio will be forcefully clipped to 25s if beyond this length.<br> "
-                   "If total duration of source and reference audio exceeds 30s, source audio will be processed in chunks.<br> "
-                   "无需训练的 zero-shot 语音/歌声转换模型，若需本地部署查看[GitHub页面](https://github.com/Plachtaa/seed-vc)<br>"
-                   "请注意，参考音频若超过 25 秒，则会被自动裁剪至此长度。<br>若源音频和参考音频的总时长超过 30 秒，源音频将被分段处理。")
-    inputs = [
-        gr.Audio(type="filepath", label="Source Audio / 源音频"),
-        gr.Audio(type="filepath", label="Reference Audio / 参考音频"),
-        gr.Slider(minimum=1, maximum=200, value=10, step=1, label="Diffusion Steps / 扩散步数", info="10 by default, 50~100 for best quality / 默认为 10，50~100 为最佳质量"),
-        gr.Slider(minimum=0.5, maximum=2.0, step=0.1, value=1.0, label="Length Adjust / 长度调整", info="<1.0 for speed-up speech, >1.0 for slow-down speech / <1.0 加速语速，>1.0 减慢语速"),
-        gr.Slider(minimum=0.0, maximum=1.0, step=0.1, value=0.7, label="Inference CFG Rate", info="has subtle influence / 有微小影响"),
-    ]
-
-    examples = [["examples/source/yae_0.wav", "examples/reference/dingzhen_0.wav", 25, 1.0, 0.7, False, True, 0],
-                ["examples/source/jay_0.wav", "examples/reference/azuma_0.wav", 25, 1.0, 0.7, True, True, 0],
-                ]
-
-    outputs = [gr.Audio(label="Stream Output Audio / 流式输出", streaming=True, format='mp3'),
-               gr.Audio(label="Full Output Audio / 完整输出", streaming=False, format='wav')]
 
 
-    gr.Interface(fn=voice_conversion,
-                 description=description,
-                 inputs=inputs,
-                 outputs=outputs,
-                 title="Seed Voice Conversion",
-                 examples=examples,
-                 cache_examples=False,
-                 ).launch(share=args.share,)
+def main(args):
+    from webhub.interfaces import create_interface
+
+    initialize(args)
+    create_interface("speech", voice_conversion).launch(share=args.share)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

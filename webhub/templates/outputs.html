@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seed-VC · Saved audio</title><link rel="stylesheet" href="/assets/hub.css">
+</head>
+<body><main>
+  <header><strong>Seed-VC</strong><a href="/">Back to model hub</a></header>
+  <p class="eyebrow">OUTPUT LIBRARY</p><h1>Saved WAVs</h1>
+  <p>Completed conversions, newest first. These files stay here after models unload or the container restarts.</p>
+  {% for name in files %}
+    <section><span>{{ name }}</span><a download href="{{ url_for('files', path=name) }}">Download WAV</a></section>
+  {% else %}<section>No saved audio yet. Open a workspace to make your first conversion.</section>{% endfor %}
+</main></body></html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seed-VC · Conversion hub</title>
+  <link rel="stylesheet" href="/assets/hub.css"><script defer src="/assets/hub.js"></script>
+</head>
+<body><main>
+  <header><strong>Seed-VC</strong><a href="/outputs/">Saved WAVs &rarr;</a></header>
+  <p class="eyebrow">CONVERSION HUB</p>
+  <h1>Choose a voice tool</h1>
+  <p>Open a workspace to convert audio. Its first conversion downloads and loads the model, or you can load it here first.</p>
+  <div class="grid">
+  {% for id, (title, version, description) in models.items() %}
+    <article data-model="{{ id }}">
+      <small>{{ version }}</small><h2>{{ title }}</h2><p>{{ description }}</p>
+      <a class="open" href="/tools/{{ id }}/">Open workspace &rarr;</a>
+      <dl>
+        <dt>Runtime</dt><dd data-field="runtime">Checking…</dd>
+        <dt>Download</dt><dd data-field="download">Checking…</dd>
+        <dt>Disk usage</dt><dd data-field="size">—</dd>
+      </dl>
+      <details><summary>Cached files</summary><ul data-field="files"></ul></details>
+      <div data-field="transfer"></div><p class="error" data-field="error"></p>
+      <div><button data-action="load" disabled>Load</button> <button data-action="unload" disabled>Unload</button></div>
+    </article>
+  {% endfor %}
+  </div>
+  <section><div><h2>Release VRAM</h2><p>Unload all models once conversions finish. Downloads and saved audio stay on disk.</p></div>
+    <button id="release">Unload all models</button></section>
+  <p class="error" role="alert" id="notice"></p>
+  <noscript>Enable JavaScript for live model status and load controls. Workspace links still work.</noscript>
+</main></body></html>
