@@ -3,6 +3,8 @@
 
 *English | [简体中文](README-ZH.md) | [日本語](README-JA.md)*  
 
+**[Docker quick start](#docker-quick-start)** — run one container and choose speech, singing, or style conversion in your browser.
+
 [real-time-demo.webm](https://github.com/user-attachments/assets/86325c5e-f7f6-4a04-8695-97275a5d046c)
 
 Currently released model supports *zero-shot voice conversion* 🔊 , *zero-shot real-time voice conversion* 🗣️ and *zero-shot singing voice conversion* 🎶. Without any training, it is able to clone a voice given a reference speech of 1~30 seconds.  
@@ -18,9 +20,9 @@ We are keeping on improving the model quality and adding more features.
 ## Evaluation📊
 See [EVAL.md](EVAL.md) for objective evaluation results and comparisons with other baselines.
 ## Installation📥
-### Docker: one browser hub for all three web tools
+### Docker quick start
 
-On a Linux x86-64 host with an NVIDIA GPU, a CUDA 12.1-compatible driver, NVIDIA Container Toolkit and Docker Compose v2, start the service once:
+On a Linux x86-64 host with an NVIDIA GPU, a CUDA 12.1-compatible driver, NVIDIA Container Toolkit and Docker Compose v2, run this from the directory containing `compose.yaml`:
 
 ```bash
 docker compose up -d --build
@@ -36,6 +38,8 @@ The hub shows each pipeline's runtime state separately from its cached files, li
 | `./hub-data/models/<id>/` | Persistent checkpoint, encoder and vocoder cache for that pipeline. Pipelines keep independent copies of shared dependencies so displayed sizes are additive. Partial downloads can resume; a successfully loaded bundle can reload offline. |
 
 The host bind mount holds the data; back up `hub-data` to keep it when moving hosts. Uploads and streaming previews are temporary. To reclaim **disk** rather than VRAM, stop the service and remove only the model cache directory you no longer want. `SEEDVC_PORT` changes the host port; `HF_ENDPOINT` can point to a trusted Hugging Face mirror. The unauthenticated hub binds to loopback by default; do not publish it to an untrusted network.
+
+To stop the hub, run `docker compose down`. Run `docker compose up -d` from the same directory to start it again with your cached models and saved WAVs.
 
 **Model API** (no request body required):
 
