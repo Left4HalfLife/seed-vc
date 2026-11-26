@@ -1,0 +1,18 @@
+# Inference + browser only; the matching CUDA torch/torchaudio wheels are
+# installed separately by the Dockerfile.
+gradio==5.23.0
+fastapi==0.115.11
+pydantic==2.10.6
+uvicorn==0.34.0
+huggingface-hub==0.29.3
+transformers==4.46.3
+numpy==1.26.4
+scipy==1.13.1
+librosa==0.10.2
+matplotlib==3.9.4
+munch==4.0.0
+einops==0.8.0
+pydub==0.25.1
+soundfile==0.12.1
+hydra-core==1.3.2
+PyYAML==6.0.2

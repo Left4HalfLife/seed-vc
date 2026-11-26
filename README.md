@@ -18,6 +18,38 @@ We are keeping on improving the model quality and adding more features.
 ## Evaluation📊
 See [EVAL.md](EVAL.md) for objective evaluation results and comparisons with other baselines.
 ## Installation📥
+### Docker: one browser hub for all three web tools
+
+On a Linux x86-64 host with an NVIDIA GPU, a CUDA 12.1-compatible driver, NVIDIA Container Toolkit and Docker Compose v2, start the service once:
+
+```bash
+docker compose up -d --build
+```
+
+Open **[http://localhost:7860](http://localhost:7860)**. Choose **Voice conversion** (V1 speech), **Singing conversion** (V1 with F0/pitch controls), or **Voice & style** (V2, including anonymization). All three workspaces are served immediately; there are no profiles, per-tool ports or additional launch commands. The desktop real-time microphone GUI, training tools and non-Seed-VC evaluation baselines are not web workspaces.
+
+The hub shows each pipeline's runtime state separately from its cached files, live downloads and disk usage. **Load** warms a model; submitting audio in a cold workspace also loads it. First load needs internet access to Hugging Face and several GB of disk. **Unload** stops the owning process and releases its GPU memory without deleting files. To have particular weights ready after every boot, set e.g. `SEEDVC_PRELOAD=speech,singing` in `.env` (valid IDs: `speech`, `singing`, `style`; default: none). Preload only what fits in VRAM.
+
+| Host directory | Contents |
+| --- | --- |
+| `./hub-data/outputs/` | Completed, uniquely named WAVs. Reopen them under **Saved WAVs**, including after `docker compose down` and `up`. |
+| `./hub-data/models/<id>/` | Persistent checkpoint, encoder and vocoder cache for that pipeline. Pipelines keep independent copies of shared dependencies so displayed sizes are additive. Partial downloads can resume; a successfully loaded bundle can reload offline. |
+
+The host bind mount holds the data; back up `hub-data` to keep it when moving hosts. Uploads and streaming previews are temporary. To reclaim **disk** rather than VRAM, stop the service and remove only the model cache directory you no longer want. `SEEDVC_PORT` changes the host port; `HF_ENDPOINT` can point to a trusted Hugging Face mirror. The unauthenticated hub binds to loopback by default; do not publish it to an untrusted network.
+
+**Model API** (no request body required):
+
+```bash
+curl -fsS http://localhost:7860/api/models                   # status, bytes and files
+curl -fsS -X POST http://localhost:7860/api/models/style/load # asynchronous; poll status
+curl -fsS -X POST http://localhost:7860/api/models/style/unload
+curl -fsS -X POST http://localhost:7860/api/models/unload     # release all workers
+```
+
+Or run `./scripts/unload-models.sh` (set `SEEDVC_URL` if using a different port). Unload is idempotent. It returns `200` after the workers exit, or `409` if a requested model is converting; retry when finished. A failed load reports `error` in the hub; see `docker compose logs seed-vc` for details and click **Load** to retry.
+
+### Standalone installation
+
 Suggested python 3.10 on Windows, Mac M Series (Apple Silicon) or Linux.
 Windows and Linux:
 ```bash
